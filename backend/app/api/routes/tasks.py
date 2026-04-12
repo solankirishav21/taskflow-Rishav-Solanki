@@ -6,8 +6,8 @@ from uuid import UUID
 from app.api.deps import get_db
 from app.core.dependencies import get_current_user
 from app.db.models.user import User
-from app.schemas.task import TaskCreate, TaskResponse
-from app.services.task_service import create_task, get_tasks
+from app.schemas.task import TaskCreate, TaskResponse, TaskUpdate
+from app.services.task_service import create_task, get_tasks, update_task
 from app.constants.enums import TaskStatus
 
 router = APIRouter(tags=["Tasks"])
@@ -31,3 +31,12 @@ def list_tasks(
     user: User = Depends(get_current_user)
 ):
     return get_tasks(db, project_id, user, status, assignee)
+
+@router.patch("/tasks/{task_id}", response_model=TaskResponse)
+def update_task_api(
+    task_id,
+    data: TaskUpdate,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user)
+):
+    return update_task(db, task_id, user, data)

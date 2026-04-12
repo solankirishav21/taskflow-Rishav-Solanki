@@ -21,3 +21,11 @@ class TaskCreate(BaseModel):
     priority: Optional[str] = "medium"
     assignee_id: Optional[UUID] = None
     due_date: Optional[date] = None
+
+class TaskUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    status: Optional[str] = None
+    priority: Optional[str] = None
+    assignee_id: Optional[UUID] = None
+    due_date: Optional[date] = None
