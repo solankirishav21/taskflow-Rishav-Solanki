@@ -1,9 +1,10 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from uuid import UUID
 from typing import Optional
 from datetime import date
 
 class TaskResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     id: UUID
     title: str
     description: Optional[str]
@@ -11,9 +12,6 @@ class TaskResponse(BaseModel):
     priority: str
     assignee_id: Optional[UUID]
     due_date: Optional[date]
-
-    class Config:
-        from_attributes = True
 
 class TaskCreate(BaseModel):
     title: str

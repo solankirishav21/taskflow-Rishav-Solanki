@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from uuid import UUID
 from typing import Optional, List
 
@@ -7,22 +7,19 @@ class ProjectCreate(BaseModel):
     name: str
     description: Optional[str] = None
 class ProjectResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     id: UUID
     name: str
     description: Optional[str]
     owner_id: UUID
-    class Config:
-        from_attributes = True
 
 class ProjectDetailResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     id: UUID
     name: str
     description: Optional[str]
     owner_id: UUID
     tasks: List[TaskResponse]
-
-    class Config:
-        from_attributes = True
 
 class ProjectUpdate(BaseModel):
     name: Optional[str] = None
