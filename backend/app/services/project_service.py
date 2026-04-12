@@ -1,3 +1,4 @@
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
 
@@ -34,3 +35,25 @@ def get_user_projects(db: Session, user: User):
     )
 
     return projects
+
+def get_project_by_id(db: Session, project_id, user: User):
+    project = (
+        db.query(Project)
+        .filter(Project.id == project_id)
+        .first()
+    )
+
+    if not project:
+        raise HTTPException(status_code=404, detail={"error": "not found"})
+
+    has_access = (
+        project.owner_id == user.id or
+        db.query(Task)
+        .filter(Task.project_id == project_id, Task.assignee_id == user.id)
+        .first()
+    )
+
+    if not has_access:
+        raise HTTPException(status_code=403, detail={"error": "forbidden"})
+
+    return project
