@@ -17,4 +17,4 @@ class Project(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     owner = relationship("User")
-    tasks = relationship("Task", cascade="all, delete")
+    tasks = relationship("Task", back_populates="project", cascade="all, delete")

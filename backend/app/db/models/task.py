@@ -25,5 +25,5 @@ class Task(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    project = relationship("Project")
+    project = relationship("Project", back_populates="tasks")
     assignee = relationship("User")
