@@ -82,3 +82,17 @@ def update_task(db: Session, task_id, user: User, data):
     db.refresh(task)
 
     return task
+
+def delete_task(db: Session, task_id, user: User):
+    task = db.query(Task).filter(Task.id == task_id).first()
+
+    if not task:
+        raise HTTPException(status_code=404, detail={"error": "not found"})
+
+    project = db.query(Project).filter(Project.id == task.project_id).first()
+
+    if project.owner_id != user.id and task.assignee_id != user.id:
+        raise HTTPException(status_code=403, detail={"error": "forbidden"})
+
+    db.delete(task)
+    db.commit()
