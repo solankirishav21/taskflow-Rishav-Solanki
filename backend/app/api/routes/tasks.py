@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Response, status
+from fastapi import APIRouter, Depends, Response, status, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from uuid import UUID
@@ -27,10 +27,12 @@ def list_tasks(
     project_id,
     status: Optional[TaskStatus] = None,
     assignee: Optional[UUID] = None,
+    page: int = Query(1, ge=1),
+    limit: int = Query(10, le=100),
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user)
 ):
-    return get_tasks(db, project_id, user, status, assignee)
+    return get_tasks(db, project_id, user, status, assignee, page, limit)
 
 @router.patch("/tasks/{task_id}", response_model=TaskResponse)
 def update_task_api(

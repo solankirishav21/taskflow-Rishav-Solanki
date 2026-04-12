@@ -30,7 +30,7 @@ def create_task(db: Session, project_id, user: User, data):
 
     return task
 
-def get_tasks(db: Session, project_id, user: User, status=None, assignee=None):
+def get_tasks(db: Session, project_id, user: User, status=None, assignee=None, page = 1, limit = 10):
     project = db.query(Project).filter(Project.id == project_id).first()
 
     if not project:
@@ -38,6 +38,8 @@ def get_tasks(db: Session, project_id, user: User, status=None, assignee=None):
 
     if project.owner_id != user.id:
         raise HTTPException(status_code=403, detail={"error": "forbidden"})
+    
+    offset = (page - 1) * limit
 
     query = db.query(Task).filter(Task.project_id == project_id)
 
@@ -47,7 +49,7 @@ def get_tasks(db: Session, project_id, user: User, status=None, assignee=None):
     if assignee:
         query = query.filter(Task.assignee_id == assignee)
 
-    return query.all()
+    return query.offset(offset).limit(limit).all()
 
 def update_task(db: Session, task_id, user: User, data):
     task = db.query(Task).filter(Task.id == task_id).first()

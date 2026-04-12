@@ -1,6 +1,6 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
-from sqlalchemy import or_
+from sqlalchemy import or_, func
 
 from app.db.models.project import Project
 from app.schemas.project import ProjectCreate
@@ -20,7 +20,8 @@ def create_project(db: Session, project_data: ProjectCreate, user: User):
 
     return project
 
-def get_user_projects(db: Session, user: User):
+def get_user_projects(db: Session, user: User, page:1, limit=10):
+    offset = (page - 1) * limit
     projects = (
         db.query(Project)
         .outerjoin(Task, Task.project_id == Project.id)
@@ -31,6 +32,8 @@ def get_user_projects(db: Session, user: User):
             )
         )
         .distinct()
+        .offset(offset)
+        .limit(limit)
         .all()
     )
 
@@ -89,3 +92,33 @@ def delete_project(db: Session, project_id, user: User):
 
     db.delete(project)
     db.commit()
+
+def get_project_stats(db: Session, project_id, user: User):
+    project = db.query(Project).filter(Project.id == project_id).first()
+
+    if not project:
+        raise HTTPException(status_code=404, detail={"error": "not found"})
+
+    if project.owner_id != user.id:
+        raise HTTPException(status_code=403, detail={"error": "forbidden"})
+
+    status_counts = (
+        db.query(Task.status, func.count(Task.id))
+        .filter(Task.project_id == project_id)
+        .group_by(Task.status)
+        .all()
+    )
+
+    assignee_counts = (
+        db.query(Task.assignee_id, func.count(Task.id))
+        .filter(Task.project_id == project_id)
+        .group_by(Task.assignee_id)
+        .all()
+    )
+
+    return {
+        "by_status": {status: count for status, count in status_counts},
+        "by_assignee": {
+            str(assignee): count for assignee, count in assignee_counts if assignee
+        }
+    }
