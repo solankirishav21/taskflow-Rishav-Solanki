@@ -4,7 +4,7 @@ from app.core.dependencies import get_current_user
 from app.db.models.user import User
 from app.core.config import settings
 from app.db.session import engine
-from app.api.routes import auth, projects
+from app.api.routes import auth, projects, tasks
 
 app = FastAPI(title=settings.APP_NAME)
 
@@ -19,6 +19,7 @@ def db_check():
 
 app.include_router(auth.router)
 app.include_router(projects.router)
+app.include_router(tasks.router)
 
 # @app.get("/me")
 # def get_me(user: User = Depends(get_current_user)):

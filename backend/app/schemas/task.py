@@ -14,3 +14,10 @@ class TaskResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+class TaskCreate(BaseModel):
+    title: str
+    description: Optional[str] = None
+    priority: Optional[str] = "medium"
+    assignee_id: Optional[UUID] = None
+    due_date: Optional[date] = None
