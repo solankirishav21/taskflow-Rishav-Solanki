@@ -3,8 +3,8 @@ from sqlalchemy.orm import Session
 from typing import List
 
 from app.api.deps import get_db
-from app.schemas.project import ProjectCreate, ProjectResponse, ProjectDetailResponse
-from app.services.project_service import create_project, get_project_by_id, get_user_projects
+from app.schemas.project import ProjectCreate, ProjectResponse, ProjectDetailResponse, ProjectUpdate
+from app.services.project_service import create_project, get_project_by_id, get_user_projects, update_project
 from app.core.dependencies import get_current_user
 from app.db.models.user import User
 
@@ -32,3 +32,13 @@ def get_project(
     user: User = Depends(get_current_user)
 ):
     return get_project_by_id(db, project_id, user)
+
+
+@router.patch("/{project_id}", response_model=ProjectResponse)
+def update(
+    project_id,
+    data: ProjectUpdate,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user)
+):
+    return update_project(db, project_id, user, data)
